@@ -2,8 +2,11 @@
 
 import { useState, useMemo } from "react";
 import { Search, MapPin, Phone, ChevronDown } from "lucide-react";
+import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from "@vis.gl/react-google-maps";
 import { MOCK_BRANCHES, REGIONS } from "@/lib/branches";
 import type { Branch } from "@/types";
+
+const LUZON_CENTER = { lat: 15.5, lng: 120.8 };
 
 export default function StoreLocatorClient() {
   const [query, setQuery] = useState("");
@@ -112,27 +115,45 @@ export default function StoreLocatorClient() {
 
           {/* Right — map + selected branch detail */}
           <div className="flex flex-col gap-4">
-            {/* Map placeholder — Google Maps would go here */}
-            <div className="bg-[#1A1A1A] rounded-2xl overflow-hidden h-[420px] relative flex items-center justify-center">
-              <div className="text-center text-white/40">
-                <MapPin size={48} className="mx-auto mb-3 text-[#C8102E] opacity-60" />
-                <p className="text-[15px] font-bold text-white/60">Interactive Map</p>
-                <p className="text-[12px] mt-1">Google Maps API key required</p>
-                <p className="text-[11px] mt-0.5 text-white/30">Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to .env.local</p>
-              </div>
-              {/* Dots for branches */}
-              <div className="absolute inset-0 pointer-events-none">
-                {filtered.slice(0, 20).map((b, i) => (
-                  <div
-                    key={b.id}
-                    className="absolute w-3 h-3 bg-[#C8102E] rounded-full border-2 border-white shadow"
-                    style={{
-                      left: `${10 + (i % 8) * 11}%`,
-                      top: `${15 + Math.floor(i / 8) * 35}%`,
-                    }}
-                  />
-                ))}
-              </div>
+            {/* Interactive map */}
+            <div className="rounded-2xl overflow-hidden h-[420px] relative">
+              <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""}>
+                <Map
+                  mapId="DEMO_MAP_ID"
+                  defaultCenter={selected ? { lat: selected.latitude, lng: selected.longitude } : LUZON_CENTER}
+                  center={selected ? { lat: selected.latitude, lng: selected.longitude } : undefined}
+                  defaultZoom={selected ? 13 : 8}
+                  zoom={selected ? 13 : undefined}
+                  gestureHandling="greedy"
+                  disableDefaultUI={false}
+                  style={{ width: "100%", height: "100%" }}
+                >
+                  {filtered.map((b) => (
+                    <AdvancedMarker
+                      key={b.id}
+                      position={{ lat: b.latitude, lng: b.longitude }}
+                      onClick={() => setSelected(b)}
+                    >
+                      <Pin
+                        background={selected?.id === b.id ? "#C8102E" : "#1A1A1A"}
+                        borderColor="#fff"
+                        glyphColor="#fff"
+                      />
+                    </AdvancedMarker>
+                  ))}
+                  {selected && (
+                    <InfoWindow
+                      position={{ lat: selected.latitude, lng: selected.longitude }}
+                      onCloseClick={() => setSelected(null)}
+                    >
+                      <div className="text-[12px] text-[#1A1A1A]">
+                        <p className="font-bold mb-0.5">{selected.name}</p>
+                        <p>{selected.address}, {selected.city}</p>
+                      </div>
+                    </InfoWindow>
+                  )}
+                </Map>
+              </APIProvider>
             </div>
 
             {/* Selected branch detail */}

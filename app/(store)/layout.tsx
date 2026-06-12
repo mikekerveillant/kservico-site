@@ -3,6 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 import PaymentBar from "@/components/layout/PaymentBar";
 import Footer from "@/components/layout/Footer";
 import CartSidebar from "@/components/cart/CartSidebar";
+import SearchModal from "@/components/layout/SearchModal";
 import StoreHydration from "@/components/StoreHydration";
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
@@ -15,6 +16,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <main className="flex-1">{children}</main>
       <Footer />
       <CartSidebar />
+      <SearchModal />
     </>
   );
 }

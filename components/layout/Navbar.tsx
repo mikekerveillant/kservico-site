@@ -7,7 +7,7 @@ import { useUIStore } from "@/store/ui";
 
 export default function Navbar() {
   const totalItems = useCartStore((s) => s.totalItems)();
-  const { toggleCart, openSearch, mobileMenuOpen, openMobileMenu, closeMobileMenu } = useUIStore();
+  const { toggleCart, openSearch, searchQuery, setSearchQuery, mobileMenuOpen, openMobileMenu, closeMobileMenu } = useUIStore();
 
   return (
     <nav className="bg-white border-b-2 border-[#EFEFEF] sticky top-0 z-[200] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
@@ -30,6 +30,9 @@ export default function Navbar() {
         <div className="flex-1 max-w-[520px] flex items-center bg-[#F8F8F8] border-2 border-[#EFEFEF] rounded-md overflow-hidden focus-within:border-[#1A31A8] transition-colors">
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={openSearch}
             placeholder="Search appliances, motorcycles, smartphones..."
             className="flex-1 bg-transparent border-none outline-none font-body text-[13.5px] px-3.5 py-2.5 text-[#1A1A1A] placeholder:text-[#999]"
           />

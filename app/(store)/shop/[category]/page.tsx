@@ -2,11 +2,14 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
+import SortSelect from "@/components/product/SortSelect";
 import { getProductsByCategory, CATEGORY_LABELS, CATEGORY_EMOJIS } from "@/lib/products";
-import type { ProductCategory } from "@/types";
+import { calculateDiscount } from "@/lib/utils";
+import type { Product, ProductCategory } from "@/types";
 
 interface Props {
   params: Promise<{ category: string }>;
+  searchParams: Promise<{ sort?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -19,19 +22,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const SORT_OPTIONS = [
-  { value: "featured", label: "Featured" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
-  { value: "discount", label: "Biggest Discount" },
-];
+function sortProducts(products: Product[], sort: string): Product[] {
+  const sorted = [...products];
+  switch (sort) {
+    case "price-asc":
+      return sorted.sort((a, b) => a.price - b.price);
+    case "price-desc":
+      return sorted.sort((a, b) => b.price - a.price);
+    case "discount":
+      return sorted.sort((a, b) => {
+        const da = a.original_price ? calculateDiscount(a.price, a.original_price) : 0;
+        const db = b.original_price ? calculateDiscount(b.price, b.original_price) : 0;
+        return db - da;
+      });
+    default:
+      return sorted.sort((a, b) => Number(b.is_featured) - Number(a.is_featured));
+  }
+}
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
   const { category } = await params;
+  const { sort = "featured" } = await searchParams;
   const label = CATEGORY_LABELS[category];
   if (!label) notFound();
 
-  const products = getProductsByCategory(category as ProductCategory);
+  const products = sortProducts(getProductsByCategory(category as ProductCategory), sort);
   const emoji = CATEGORY_EMOJIS[category] ?? "🛍️";
 
   return (
@@ -64,11 +79,7 @@ export default async function CategoryPage({ params }: Props) {
           <p className="text-[13px] text-[#555]">
             Showing <strong className="text-[#1A1A1A]">{products.length}</strong> products
           </p>
-          <select className="bg-white border border-[#EFEFEF] rounded-lg px-3 py-2 text-[13px] font-semibold text-[#555] outline-none hover:border-[#C8102E] transition-colors cursor-pointer">
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
+          <SortSelect />
         </div>
 
         {products.length > 0 ? (
