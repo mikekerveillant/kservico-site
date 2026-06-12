@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const BRANDS = [
   "LG", "Samsung", "Haier", "Panasonic", "Fujidenzo", "TCL",
   "Honda", "Yamaha", "Kawasaki", "Suzuki", "Kymco",
@@ -15,12 +17,13 @@ export default function BrandsBar() {
         </p>
         <div className="flex items-center justify-center flex-wrap gap-1">
           {BRANDS.map((brand) => (
-            <button
+            <Link
               key={brand}
-              className="px-5 py-2 text-[13px] font-black text-[#999] uppercase tracking-wider rounded-full border-[1.5px] border-transparent hover:text-[#1A31A8] hover:border-[#1A31A8] hover:bg-[#e8ecfa] transition-all cursor-pointer"
+              href={`/shop?brand=${encodeURIComponent(brand)}`}
+              className="px-5 py-2 text-[13px] font-black text-[#999] uppercase tracking-wider rounded-full border-[1.5px] border-transparent hover:text-[#1A31A8] hover:border-[#1A31A8] hover:bg-[#e8ecfa] transition-all cursor-pointer no-underline"
             >
               {brand}
-            </button>
+            </Link>
           ))}
         </div>
       </div>
