@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  /* KServico brand colors */
+  --color-ks-red: #C8102E;
+  --color-ks-red-dark: #a00d24;
+  --color-ks-yellow: #F5C200;
+  --color-ks-yellow-dark: #d4a800;
+  --color-ks-yellow-light: #fffbe6;
+  --color-ks-blue: #1A31A8;
+  --color-ks-blue-dark: #122390;
+  --color-ks-blue-light: #e8ecfa;
+  --color-ks-gold: #F5A623;
+  --color-ks-charcoal: #1A1A1A;
+  --color-ks-bg: #F8F8F8;
+
+  /* Fonts */
+  --font-display: var(--font-nunito);
+  --font-body: var(--font-inter);
+  --font-sans: var(--font-inter);
+}
+
+:root {
+  --background: #F8F8F8;
+  --foreground: #1A1A1A;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}

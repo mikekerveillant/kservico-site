@@ -1,0 +1,54 @@
+import type { Product, ProductCategory } from "@/types";
+
+export const MOCK_PRODUCTS: Product[] = [
+  { id: "1", sku: "TV001", name: "LG 55\" 4K OLED Smart TV", slug: "lg-55-4k-oled", brand: "LG", category: "tv", price: 54995, original_price: 69995, description: "Experience cinematic brilliance with LG's OLED technology. Perfect blacks, vibrant colors, and stunning contrast bring every scene to life.", features: ["4K OLED Display", "webOS Smart TV", "ThinQ AI", "Dolby Vision IQ", "HDMI 2.1 ports"], images: [], is_featured: true, is_active: true, stock_qty: 10, specifications: { "Screen Size": "55 inches", "Resolution": "3840 x 2160 (4K)", "Panel Type": "OLED", "Refresh Rate": "120Hz", "HDR": "Dolby Vision, HDR10, HLG", "Smart TV": "webOS 23", "HDMI Ports": "4 (1x HDMI 2.1)", "USB Ports": "3" } },
+  { id: "2", sku: "AC001", name: "Samsung 1.5HP WindFree Inverter Aircon", slug: "samsung-15hp-windfree", brand: "Samsung", category: "aircon", price: 32995, original_price: 41995, description: "Samsung WindFree™ technology cools without cold drafts — 21,000 micro holes disperse air gently while maintaining your ideal temperature.", features: ["WindFree™ Cooling", "AI Auto Cooling", "Energy-saving Inverter", "5-Star Energy Efficiency", "Wi-Fi Control via SmartThings"], images: [], is_featured: false, is_active: true, stock_qty: 5, specifications: { "Capacity": "1.5 HP", "Cooling Capacity": "14,390 BTU/h", "Energy Efficiency": "5-Star", "Technology": "Inverter", "Refrigerant": "R-32", "Coverage": "Up to 20 sqm", "Noise Level (Indoor)": "22 dB", "Installation": "Split-type" } },
+  { id: "3", sku: "WA001", name: "LG 9kg Front Load Washer with AI DD", slug: "lg-9kg-front-load", brand: "LG", category: "washer", price: 28995, original_price: 35995, description: "LG AI DD technology learns fabric weight and softness, then selects the best wash motions for outstanding fabric care.", features: ["AI Direct Drive Motor", "6 Motion DD Technology", "Steam Wash", "TurboWash™", "ThinQ™ AI App Control"], images: [], is_featured: false, is_active: true, stock_qty: 8, specifications: { "Capacity": "9kg", "Type": "Front Load", "Motor": "Direct Drive (10-yr warranty)", "Spin Speed": "1200 RPM", "Programs": "14", "Energy Rating": "Energy Star", "Dimensions": "60 x 56 x 85 cm", "Water Consumption": "52L per cycle" } },
+  { id: "4", sku: "FR001", name: "Samsung 428L Side-by-Side Refrigerator", slug: "samsung-428l-sbs", brand: "Samsung", category: "fridge", price: 56995, original_price: 71995, description: "The SpaceMax™ Family Hub keeps everything fresh and connected. Twin Cooling Plus™ maintains optimal temperature in each compartment independently.", features: ["Twin Cooling Plus™", "SpaceMax Technology", "Digital Inverter Compressor", "Ice & Water Dispenser", "All-Around Cooling"], images: [], is_featured: true, is_active: true, stock_qty: 3, specifications: { "Capacity": "428 Liters", "Type": "Side-by-Side", "Compressor": "Digital Inverter (20-yr warranty)", "Cooling System": "Twin Cooling Plus™", "Energy Star": "Yes", "Ice Maker": "Yes", "Water Dispenser": "Yes", "Dimensions": "91.2 x 71.6 x 178 cm" } },
+  { id: "5", sku: "SP001", name: "Apple iPhone 16 128GB", slug: "apple-iphone-16-128", brand: "Apple", category: "smartphone", price: 56990, original_price: 62990, description: "iPhone 16 features the A18 chip with a 6-core GPU, the most powerful chip ever in a smartphone — built for Apple Intelligence.", features: ["A18 chip with 6-core GPU", "48MP Fusion Camera System", "Camera Control button", "Action Button", "Apple Intelligence ready"], images: [], is_featured: true, is_active: true, stock_qty: 20, specifications: { "Chip": "A18 (3nm)", "Display": "6.1\" Super Retina XDR", "Storage": "128GB", "Main Camera": "48MP Fusion + 12MP Ultra Wide", "Battery": "All‑day battery life", "OS": "iOS 18", "5G": "Yes", "Color": "Black, White, Pink, Teal, Ultramarine" } },
+  { id: "6", sku: "LP001", name: "Acer Aspire 5 Intel Core i5 Laptop", slug: "acer-aspire-5-i5", brand: "Acer", category: "laptop", price: 34995, original_price: 42995, description: "The Acer Aspire 5 delivers solid everyday performance for school, work, and entertainment with a crisp IPS display and all-day battery.", features: ["Intel Core i5-1335U", "8GB DDR5 RAM (upgradeable)", "512GB PCIe NVMe SSD", "15.6\" FHD IPS Display", "Backlit Keyboard"], images: [], is_featured: false, is_active: true, stock_qty: 12, specifications: { "Processor": "Intel Core i5-1335U", "RAM": "8GB DDR5 (upgradeable to 32GB)", "Storage": "512GB PCIe NVMe SSD", "Display": "15.6\" FHD IPS (1920x1080)", "GPU": "Intel Iris Xe Graphics", "Battery": "57.5Wh (up to 9hrs)", "OS": "Windows 11 Home", "Weight": "1.7 kg" } },
+  { id: "7", sku: "TV002", name: "TCL 65\" QLED 4K Smart TV", slug: "tcl-65-qled-4k", brand: "TCL", category: "tv", price: 39995, original_price: 51995, description: "TCL's QLED technology delivers quantum dot color for over a billion color combinations. The 65-inch screen immerses you in every detail.", features: ["QLED Quantum Dot", "Dolby Vision & Atmos", "Google TV", "4K AI Upscaling", "60Hz Game Mode"], images: [], is_featured: false, is_active: true, stock_qty: 6, specifications: { "Screen Size": "65 inches", "Resolution": "3840 x 2160 (4K)", "Panel": "QLED", "Refresh Rate": "60Hz", "HDR": "Dolby Vision, HDR10+", "Smart TV": "Google TV", "HDMI Ports": "3", "Bluetooth": "5.0" } },
+  { id: "8", sku: "AC002", name: "Panasonic 2.0HP Inverter Aircon", slug: "panasonic-2hp-inverter", brand: "Panasonic", category: "aircon", price: 41995, original_price: 52995, description: "Panasonic's ECONAVI sensor detects room activity and sunlight to reduce unnecessary energy use — saving up to 30% on electricity bills.", features: ["ECONAVI + Inverter", "nanoe™ X air purification", "PM2.5 Filter", "Wi-Fi Control", "Self-cleaning mode"], images: [], is_featured: false, is_active: true, stock_qty: 7, specifications: { "Capacity": "2.0 HP", "Cooling Capacity": "19,100 BTU/h", "Technology": "Inverter + ECONAVI", "Refrigerant": "R-32", "Coverage": "Up to 28 sqm", "Air Purification": "nanoe™ X", "Noise Level": "21 dB", "Warranty": "5 years compressor" } },
+  { id: "9", sku: "SP002", name: "OPPO Reno12 Pro 5G 256GB", slug: "oppo-reno12-pro", brand: "OPPO", category: "smartphone", price: 26999, original_price: 31999, description: "OPPO Reno12 Pro redefines AI portrait photography with the most advanced AI Eraser, AI Best Face, and Live Photo features.", features: ["Dimensity 7300-Energy chip", "50MP Sony LYTIA-1 Camera", "AI Portrait Master", "80W SUPERVOOC Charging", "5000mAh battery"], images: [], is_featured: false, is_active: true, stock_qty: 15, specifications: { "Chip": "MediaTek Dimensity 7300-Energy", "Display": "6.7\" AMOLED 120Hz", "Storage": "256GB", "Main Camera": "50MP Sony LYT-600", "Battery": "5000mAh + 80W SUPERVOOC", "OS": "ColorOS 14.1 (Android 14)", "5G": "Yes", "Thickness": "7.4mm" } },
+  { id: "10", sku: "LP002", name: "Lenovo IdeaPad Slim 5 AMD Ryzen 5", slug: "lenovo-ideapad-slim5", brand: "Lenovo", category: "laptop", price: 37995, original_price: 46995, description: "The IdeaPad Slim 5 with AMD Ryzen 5 delivers exceptional performance in a sleek, lightweight design — perfect for students and professionals.", features: ["AMD Ryzen 5 7530U", "16GB LPDDR4X RAM", "512GB SSD", "15.6\" FHD IPS Anti-glare", "Fingerprint reader"], images: [], is_featured: false, is_active: true, stock_qty: 9, specifications: { "Processor": "AMD Ryzen 5 7530U", "RAM": "16GB LPDDR4X", "Storage": "512GB PCIe SSD", "Display": "15.6\" FHD IPS Anti-glare", "GPU": "AMD Radeon Graphics", "Battery": "56Wh (up to 10hrs)", "OS": "Windows 11 Home", "Weight": "1.62 kg" } },
+  { id: "11", sku: "FU001", name: "7K Island 3-Seater Sofa Set", slug: "7k-island-3-seater-sofa", brand: "7K Island", category: "furniture", price: 18995, original_price: 24995, description: "Premium leatherette sofa set combining style and durability. High-density foam cushions provide all-day comfort for the whole family.", features: ["Premium Leatherette", "High-density foam cushions", "Solid wood frame", "Easy-clean surface", "Available in 3 colors"], images: [], is_featured: false, is_active: true, stock_qty: 6, specifications: { "Type": "3-Seater Sofa", "Material": "Leatherette + Solid Wood", "Dimensions": "210 x 90 x 85 cm", "Cushion Foam": "High-density 28D", "Weight Capacity": "300 kg", "Colors": "Black, Brown, Gray", "Warranty": "1 year" } },
+  { id: "12", sku: "MT001", name: "Honda Click 125i CBS+ABS", slug: "honda-click-125i", brand: "Honda", category: "motorcycle", price: 88900, original_price: 92900, description: "The Honda Click 125i is the #1 selling scooter in the Philippines. Smart key system, LED lighting, and best-in-class fuel efficiency.", features: ["125cc eSP+ Engine", "Smart Key System", "CBS + ABS", "Full LED Lighting", "Fuel Efficiency: 60km/L"], images: [], is_featured: true, is_active: true, stock_qty: 8, specifications: { "Engine": "125cc 4-stroke SOHC eSP+", "Transmission": "Automatic CVT", "Fuel System": "PGM-Fi (Fuel Injection)", "Brakes": "CBS + ABS", "Fuel Tank": "5.5 Liters", "Fuel Efficiency": "~60 km/L", "Weight": "118 kg", "Colors": "Victory Black, Pearl Nightstar Black, Mat Fresca Green" } },
+];
+
+export function getProductBySlug(slug: string): Product | undefined {
+  return MOCK_PRODUCTS.find((p) => p.slug === slug);
+}
+
+export function getProductsByCategory(category: ProductCategory): Product[] {
+  return MOCK_PRODUCTS.filter((p) => p.category === category && p.is_active);
+}
+
+export function getFeaturedProducts(limit = 10): Product[] {
+  return MOCK_PRODUCTS.filter((p) => p.is_featured && p.is_active).slice(0, limit);
+}
+
+export function getRelatedProducts(product: Product, limit = 4): Product[] {
+  return MOCK_PRODUCTS.filter(
+    (p) => p.category === product.category && p.id !== product.id && p.is_active
+  ).slice(0, limit);
+}
+
+export const CATEGORY_LABELS: Record<string, string> = {
+  aircon: "Air Conditioners",
+  tv: "Televisions",
+  washer: "Washers & Dryers",
+  fridge: "Refrigerators",
+  "gas-range": "Gas Ranges",
+  motorcycle: "Motorcycles",
+  ebike: "E-Bikes",
+  "three-wheeler": "Three-Wheelers",
+  smartphone: "Smartphones",
+  laptop: "Laptops",
+  furniture: "Furniture",
+};
+
+export const CATEGORY_EMOJIS: Record<string, string> = {
+  tv: "📺", aircon: "❄️", washer: "🫧", fridge: "🧊",
+  "gas-range": "🔥", motorcycle: "🏍️", ebike: "⚡",
+  "three-wheeler": "🛺", smartphone: "📱", laptop: "💻", furniture: "🛋️",
+};
