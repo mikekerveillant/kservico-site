@@ -109,7 +109,7 @@ export default function ProductDetailClient({ product: p, related, emoji }: Prop
 
             {/* Description */}
             {p.description && (
-              <p className="text-[14px] text-[#555] leading-[1.7] mb-5">{p.description}</p>
+              <p className="text-[14px] text-[#555] leading-[1.7] mb-5 whitespace-pre-line">{p.description}</p>
             )}
 
             {/* Features */}

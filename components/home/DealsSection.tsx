@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
 import { MOCK_PRODUCTS } from "@/lib/products";
+import { calculateDiscount } from "@/lib/utils";
 
 const TABS = ["All", "TVs", "Aircon", "Washer", "Fridge", "Phone", "Laptop"];
 
@@ -12,12 +13,34 @@ const TAB_FILTER: Record<string, string | null> = {
   Fridge: "fridge", Phone: "smartphone", Laptop: "laptop",
 };
 
+const PER_CATEGORY_FOR_ALL = 2;
+const MAX_PER_TAB = 10;
+
+function discountOf(p: (typeof MOCK_PRODUCTS)[number]) {
+  return p.original_price ? calculateDiscount(p.price, p.original_price) : 0;
+}
+
 export default function DealsSection() {
   const [activeTab, setActiveTab] = useState("All");
 
-  const filtered = activeTab === "All"
-    ? MOCK_PRODUCTS.filter((p) => p.is_active)
-    : MOCK_PRODUCTS.filter((p) => p.category === TAB_FILTER[activeTab] && p.is_active);
+  let filtered: typeof MOCK_PRODUCTS;
+  if (activeTab === "All") {
+    const byCategory = new Map<string, typeof MOCK_PRODUCTS>();
+    for (const p of MOCK_PRODUCTS) {
+      if (!p.is_active) continue;
+      const list = byCategory.get(p.category) ?? [];
+      list.push(p);
+      byCategory.set(p.category, list);
+    }
+    filtered = Array.from(byCategory.values()).flatMap((list) =>
+      [...list].sort((a, b) => discountOf(b) - discountOf(a)).slice(0, PER_CATEGORY_FOR_ALL)
+    );
+  } else {
+    filtered = MOCK_PRODUCTS
+      .filter((p) => p.category === TAB_FILTER[activeTab] && p.is_active)
+      .sort((a, b) => discountOf(b) - discountOf(a))
+      .slice(0, MAX_PER_TAB);
+  }
 
   return (
     <section className="bg-[#F8F8F8] py-2 pb-12">

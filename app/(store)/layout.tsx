@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import CartSidebar from "@/components/cart/CartSidebar";
 import SearchModal from "@/components/layout/SearchModal";
 import StoreHydration from "@/components/StoreHydration";
+import ChatWidget from "@/components/chat/ChatWidget";
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,6 +18,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <Footer />
       <CartSidebar />
       <SearchModal />
+      <ChatWidget />
     </>
   );
 }

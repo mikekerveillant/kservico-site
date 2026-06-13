@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { MOCK_PRODUCTS, CATEGORY_EMOJIS } from "@/lib/products";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import { Search } from "lucide-react";
+import { MOCK_PRODUCTS, CATEGORY_EMOJIS, CATEGORY_LABELS } from "@/lib/products";
 import { MOCK_BRANCHES, REGIONS } from "@/lib/branches";
 import { formatPrice, calculateMonthly } from "@/lib/utils";
 import type { ApplyFormData } from "../types";
@@ -16,11 +18,39 @@ interface Props {
 
 export default function Step1ProductBranch({ form, update }: Props) {
   const [branchRegion, setBranchRegion] = useState("All Regions");
+  const [query, setQuery] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   const product = useMemo(
     () => MOCK_PRODUCTS.find((p) => p.id === form.productId),
     [form.productId]
   );
+
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const active = MOCK_PRODUCTS.filter((p) => p.is_active);
+    if (!q) return active.slice(0, 8);
+    return active
+      .filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          CATEGORY_LABELS[p.category]?.toLowerCase().includes(q)
+      )
+      .slice(0, 8);
+  }, [query]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setShowResults(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const filteredBranches = useMemo(() => {
     if (branchRegion === "All Regions") return MOCK_BRANCHES;
@@ -58,18 +88,58 @@ export default function Step1ProductBranch({ form, update }: Props) {
             </button>
           </div>
         ) : (
-          <select
-            value={form.productId}
-            onChange={(e) => update("productId", e.target.value)}
-            className={`${inputClass} cursor-pointer`}
-          >
-            <option value="">— Select a product —</option>
-            {MOCK_PRODUCTS.filter((p) => p.is_active).map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} — {formatPrice(p.price)}
-              </option>
-            ))}
-          </select>
+          <div ref={pickerRef} className="relative">
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#999] pointer-events-none" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => setShowResults(true)}
+                placeholder="Search by product name, brand, or category…"
+                className={`${inputClass} !pl-10`}
+              />
+            </div>
+            {showResults && (
+              <div className="absolute z-10 top-[calc(100%+6px)] left-0 right-0 bg-white border-2 border-[#EFEFEF] rounded-xl shadow-lg max-h-[320px] overflow-y-auto">
+                {results.length === 0 ? (
+                  <p className="text-[13px] text-[#999] text-center py-6">No products found.</p>
+                ) : (
+                  results.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        update("productId", p.id);
+                        setQuery("");
+                        setShowResults(false);
+                      }}
+                      className="w-full flex items-center gap-3 p-3 text-left hover:bg-[#F8F8F8] transition-colors border-b border-[#F5F5F5] last:border-b-0 cursor-pointer"
+                    >
+                      <div className="w-11 h-11 bg-[#F8F8F8] rounded-lg flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                        {p.images?.[0] ? (
+                          <Image
+                            src={p.images[0]}
+                            alt={p.name}
+                            fill
+                            sizes="44px"
+                            className="object-contain p-1"
+                          />
+                        ) : (
+                          <span className="text-[20px]">{CATEGORY_EMOJIS[p.category] ?? "🛍️"}</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-black tracking-wider text-[#999] uppercase mb-0.5">{p.brand}</p>
+                        <p className="text-[13px] font-semibold text-[#1A1A1A] truncate">{p.name}</p>
+                      </div>
+                      <p className="font-display text-[14px] font-black text-[#C8102E] flex-shrink-0">{formatPrice(p.price)}</p>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         )}
       </div>
 

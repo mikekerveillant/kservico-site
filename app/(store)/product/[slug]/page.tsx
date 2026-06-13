@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Product not found" };
   return {
     title: `${product.name} — KServico`,
-    description: product.description,
+    description: product.description?.replace(/\s*\n+\s*/g, " · ").slice(0, 160),
   };
 }
 

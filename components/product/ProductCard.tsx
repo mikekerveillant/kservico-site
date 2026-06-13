@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/store/cart";
 import { useUIStore } from "@/store/ui";
@@ -31,8 +32,18 @@ export default function ProductCard({ product: p, compact }: ProductCardProps) {
       className="bg-white border-[1.5px] border-[#EFEFEF] rounded-xl overflow-hidden hover:border-[#C8102E] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(200,16,46,0.1)] transition-all relative group no-underline block"
     >
       {/* Image */}
-      <div className={`bg-[#F8F8F8] flex items-center justify-center relative overflow-hidden ${compact ? "h-[140px]" : "h-[180px]"}`}>
-        <span className="text-[60px] group-hover:scale-110 transition-transform">{emoji}</span>
+      <div className={`bg-[#F8F8F8] flex items-center justify-center relative overflow-hidden ${compact ? "h-[170px]" : "h-[220px]"}`}>
+        {p.images?.[0] ? (
+          <Image
+            src={p.images[0]}
+            alt={p.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+            className="object-contain p-3 group-hover:scale-105 transition-transform"
+          />
+        ) : (
+          <span className="text-[60px] group-hover:scale-110 transition-transform">{emoji}</span>
+        )}
         {pct > 0 && (
           <span className="absolute top-2 left-2 bg-[#C8102E] text-white text-[10px] font-black px-2 py-0.5 rounded-full">
             -{pct}%

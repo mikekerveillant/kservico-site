@@ -9,7 +9,10 @@ export type ProductCategory =
   | "three-wheeler"
   | "smartphone"
   | "laptop"
-  | "furniture";
+  | "furniture"
+  | "audio"
+  | "small-appliance"
+  | "gadget";
 
 export type ApplicationStatus =
   | "pending"

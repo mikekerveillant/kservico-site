@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Check, AlertCircle } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { MOCK_PRODUCTS } from "@/lib/products";
+import { MOCK_BRANCHES } from "@/lib/branches";
 import { DEFAULT_FORM, STEPS, type ApplyFormData } from "./types";
 import Step1ProductBranch from "./steps/Step1ProductBranch";
 import Step2Personal from "./steps/Step2Personal";
@@ -58,6 +61,8 @@ export default function ApplyClient() {
   const [form, setForm] = useState<ApplyFormData>(DEFAULT_FORM);
   const [step, setStep] = useState(0);
   const [reference, setReference] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     const productId = searchParams.get("product");
@@ -70,10 +75,84 @@ export default function ApplyClient() {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  async function handleSubmitApplication() {
+    const product = MOCK_PRODUCTS.find((p) => p.id === form.productId);
+    const branch = MOCK_BRANCHES.find((b) => b.id === form.branchId);
+    if (!product || !branch || !form.proofOfIncomeFile || !form.proofOfBillingFile || !form.idFile) {
+      setSubmitError("Something went wrong. Please review your application and try again.");
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const ref = generateReference();
+      const supabase = createClient();
+
+      async function uploadFile(file: File, label: string) {
+        const ext = file.name.split(".").pop();
+        const path = `${ref}/${label}.${ext}`;
+        const { error } = await supabase.storage.from("application-documents").upload(path, file);
+        if (error) throw error;
+        return path;
+      }
+
+      const [incomePath, billingPath, idPath] = await Promise.all([
+        uploadFile(form.proofOfIncomeFile, "proof-of-income"),
+        uploadFile(form.proofOfBillingFile, "proof-of-billing"),
+        uploadFile(form.idFile, "id"),
+      ]);
+
+      const { error: insertError } = await supabase.from("applications").insert({
+        reference: ref,
+        product_id: form.productId,
+        product_name: product.name,
+        product_price: product.price,
+        term_months: form.termMonths,
+        branch_id: form.branchId,
+        branch_name: branch.name,
+        last_name: form.lastName,
+        first_name: form.firstName,
+        middle_name: form.middleName || null,
+        birthday: form.birthday,
+        gender: form.gender,
+        civil_status: form.civilStatus,
+        nationality: form.nationality,
+        present_address: form.presentAddress,
+        cellular_no: form.cellularNo,
+        tel_no: form.telNo || null,
+        email: form.email,
+        employment_type: form.employmentType,
+        employer_name: form.employerName,
+        nature_of_business: form.natureOfBusiness || null,
+        employer_address: form.employerAddress,
+        employer_contact: form.employerContact,
+        position: form.position || null,
+        employment_status: form.employmentStatus || null,
+        years_connected: form.yearsConnected,
+        gross_income: Number(form.grossIncome),
+        proof_of_income_type: form.proofOfIncomeType,
+        proof_of_income_path: incomePath,
+        proof_of_billing_type: form.proofOfBillingType,
+        proof_of_billing_path: billingPath,
+        id_type: form.idType,
+        id_path: idPath,
+      });
+      if (insertError) throw insertError;
+
+      setReference(ref);
+    } catch {
+      setSubmitError("We couldn't submit your application. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   function handleNext() {
     if (!isStepValid(step, form)) return;
     if (step === STEPS.length - 1) {
-      setReference(generateReference());
+      handleSubmitApplication();
       return;
     }
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
@@ -169,12 +248,20 @@ export default function ApplyClient() {
           {step === 4 && <Step5Review form={form} />}
         </div>
 
+        {/* Submission error */}
+        {submitError && (
+          <div className="flex items-center gap-2 bg-[#FEF2F2] border border-[#FECACA] text-[#C8102E] text-[13px] rounded-xl px-4 py-3 mb-4">
+            <AlertCircle size={16} className="flex-shrink-0" />
+            {submitError}
+          </div>
+        )}
+
         {/* Navigation */}
         <div className="flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleBack}
-            disabled={step === 0}
+            disabled={step === 0 || submitting}
             className="flex items-center gap-1.5 px-5 py-3 rounded-xl font-display font-black text-[13px] text-[#555] border-2 border-[#EFEFEF] hover:border-[#C8102E] hover:text-[#C8102E] transition-colors disabled:opacity-0 disabled:pointer-events-none"
           >
             <ChevronLeft size={16} /> Back
@@ -182,10 +269,10 @@ export default function ApplyClient() {
           <button
             type="button"
             onClick={handleNext}
-            disabled={!isStepValid(step, form)}
+            disabled={!isStepValid(step, form) || submitting}
             className="flex items-center gap-1.5 px-6 py-3 rounded-xl font-display font-black text-[14px] bg-[#C8102E] text-white hover:bg-[#a00d24] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {step === STEPS.length - 1 ? "Submit Application" : "Continue"}
+            {step === STEPS.length - 1 ? (submitting ? "Submitting…" : "Submit Application") : "Continue"}
             {step < STEPS.length - 1 && <ChevronRight size={16} />}
           </button>
         </div>
