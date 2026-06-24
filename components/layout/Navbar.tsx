@@ -123,19 +123,11 @@ export default function Navbar() {
 }
 
 const NAV_CATS = [
-  // Appliances
-  { label: "Air Conditioners", icon: "❄️", href: "/shop/aircon" },
-  { label: "TVs", icon: "📺", href: "/shop/tv" },
-  { label: "Refrigerators", icon: "🧊", href: "/shop/fridge" },
-  { label: "Washers", icon: "🫧", href: "/shop/washer" },
-  { label: "Gas Ranges", icon: "🔥", href: "/shop/gas-range" },
-  // Gadgets
-  { label: "Smartphones", icon: "📱", href: "/shop/smartphone" },
-  { label: "Laptops", icon: "💻", href: "/shop/laptop" },
-  // Furniture
+  { label: "Aircons", icon: "❄️", href: "/shop/aircon" },
+  { label: "Mobile", icon: "📱", href: "/shop/mobile" },
+  { label: "Gadgets", icon: "💻", href: "/shop/gadgets" },
+  { label: "Home Appliances", icon: "🏠", href: "/shop/home-appliances" },
+  { label: "Small Appliances", icon: "🔌", href: "/shop/small-appliances" },
   { label: "Furniture", icon: "🛋️", href: "/shop/furniture" },
-  // Vehicles
-  { label: "Motorcycles", icon: "🏍️", href: "/motorcycles" },
-  { label: "E-Bikes", icon: "⚡", href: "/shop/ebike" },
-  { label: "Three Wheelers", icon: "🛺", href: "/shop/three-wheeler" },
+  { label: "Vehicles", icon: "🏍️", href: "/shop/vehicles" },
 ];
