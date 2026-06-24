@@ -94,11 +94,11 @@ export default function Navbar() {
           {NAV_CATS.map((cat) => (
             <div key={cat.href} className="relative group/cat flex-shrink-0">
               {cat.sub ? (
-                <button className="flex items-center gap-1.5 px-3.5 py-[9px] whitespace-nowrap text-[13px] font-semibold text-[#555] bg-transparent border-none border-b-[3px] border-transparent group-hover/cat:text-[#1A31A8] group-hover/cat:border-b-[#1A31A8] cursor-pointer transition-all">
+                <Link href={cat.href} className="flex items-center gap-1.5 px-3.5 py-[9px] whitespace-nowrap text-[13px] font-semibold text-[#555] no-underline border-b-[3px] border-transparent group-hover/cat:text-[#1A31A8] group-hover/cat:border-b-[#1A31A8] transition-all">
                   <span className="text-[15px]">{cat.icon}</span>
                   {cat.label}
                   <ChevronDown size={11} className="ml-0.5 transition-transform duration-200 group-hover/cat:rotate-180" />
-                </button>
+                </Link>
               ) : (
                 <Link
                   href={cat.href}
