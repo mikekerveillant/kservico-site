@@ -42,6 +42,16 @@ export async function POST(request: Request) {
     status = data.status;
   }
 
+  // Fetch prior history BEFORE inserting the current message so the current
+  // message is always appended last. Reading after insert risks replica lag
+  // returning a stale snapshot that ends with the previous assistant reply → 400.
+  const { data: history } = await supabase
+    .from("chat_messages")
+    .select("role, content")
+    .eq("conversation_id", convoId)
+    .order("created_at", { ascending: true })
+    .limit(19);
+
   await supabase.from("chat_messages").insert({
     conversation_id: convoId,
     role: "user",
@@ -60,16 +70,12 @@ export async function POST(request: Request) {
   if (!process.env.ANTHROPIC_API_KEY) {
     reply = FALLBACK_REPLY;
   } else {
-    const { data: history } = await supabase
-      .from("chat_messages")
-      .select("role, content")
-      .eq("conversation_id", convoId)
-      .order("created_at", { ascending: true })
-      .limit(20);
-
-    const messages = (history ?? [])
-      .filter((m) => m.role === "user" || m.role === "assistant")
-      .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+    const messages = [
+      ...(history ?? [])
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+      { role: "user" as const, content: message },
+    ];
 
     try {
       const result = await client.messages.create({
