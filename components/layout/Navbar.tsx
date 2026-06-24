@@ -130,4 +130,5 @@ const NAV_CATS = [
   { label: "Small Appliances", icon: "🔌", href: "/shop/small-appliances" },
   { label: "Furniture", icon: "🛋️", href: "/shop/furniture" },
   { label: "Vehicles", icon: "🏍️", href: "/shop/vehicles" },
+  { label: "3 Wheelers", icon: "🛺", href: "/shop/three-wheeler" },
 ];
