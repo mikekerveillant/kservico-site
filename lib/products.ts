@@ -52,6 +52,9 @@ export const CATEGORY_LABELS: Record<string, string> = {
   "home-appliances": "Home Appliances",
   "small-appliances": "Small Appliances",
   vehicles: "Vehicles",
+  // aircon sub-types
+  "aircon-window": "Window Type Air Conditioners",
+  "aircon-split": "Split Type Air Conditioners",
 };
 
 export const CATEGORY_EMOJIS: Record<string, string> = {
@@ -61,4 +64,5 @@ export const CATEGORY_EMOJIS: Record<string, string> = {
   audio: "🔊", "small-appliance": "🍳", gadget: "🖨️",
   mobile: "📱", gadgets: "💻", "home-appliances": "🏠",
   "small-appliances": "🔌", vehicles: "🏍️",
+  "aircon-window": "🪟", "aircon-split": "❄️",
 };

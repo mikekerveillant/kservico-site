@@ -171,7 +171,15 @@ export default function Navbar() {
 }
 
 const NAV_CATS: NavCat[] = [
-  { label: "Aircons", icon: "❄️", href: "/shop/aircon" },
+  {
+    label: "Aircons",
+    icon: "❄️",
+    href: "/shop/aircon",
+    sub: [
+      { label: "Window Type", icon: "🪟", href: "/shop/aircon-window" },
+      { label: "Split Type", icon: "❄️", href: "/shop/aircon-split" },
+    ],
+  },
   { label: "Mobile", icon: "📱", href: "/shop/mobile" },
   {
     label: "Gadgets",
