@@ -23,10 +23,28 @@ export async function POST(request: Request) {
   if (convoId) {
     const { data } = await supabase
       .from("chat_conversations")
-      .select("status")
+      .select("status, updated_at")
       .eq("id", convoId)
       .single();
-    if (data) status = data.status;
+    if (data) {
+      status = data.status;
+      // Auto-revert to AI after 10 minutes of no staff response
+      if (status === "handoff_requested" && data.updated_at) {
+        const minutesWaiting = (Date.now() - new Date(data.updated_at).getTime()) / 60000;
+        if (minutesWaiting >= 10) {
+          await supabase
+            .from("chat_conversations")
+            .update({ status: "ai", updated_at: new Date().toISOString() })
+            .eq("id", convoId);
+          await supabase.from("chat_messages").insert({
+            conversation_id: convoId,
+            role: "system",
+            content: "Our team is still unavailable. Kai is back to assist you in the meantime.",
+          });
+          status = "ai";
+        }
+      }
+    }
   }
 
   if (!convoId) {
