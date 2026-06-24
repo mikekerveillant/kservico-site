@@ -8,6 +8,7 @@ export function getProductBySlug(slug: string): Product | undefined {
 }
 
 const MERGED_CATEGORIES: Record<string, string[]> = {
+  aircon: ["aircon-window", "aircon-split"],
   mobile: ["smartphone"],
   gadgets: ["laptop", "gadget", "audio"],
   "home-appliances": ["tv", "fridge", "washer"],
