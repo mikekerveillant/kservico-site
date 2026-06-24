@@ -11,6 +11,7 @@ export default function StoreLocatorClient() {
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState("All Regions");
   const [selected, setSelected] = useState<Branch | null>(null);
+  const [mapReady, setMapReady] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const leafletRef = useRef<any>(null);
@@ -57,6 +58,7 @@ export default function StoreLocatorClient() {
       }).addTo(map);
 
       leafletRef.current = { map, L, markers: [] as ReturnType<typeof L.marker>[], makeIcon };
+      setMapReady(true);
     });
 
     return () => {
@@ -83,7 +85,7 @@ export default function StoreLocatorClient() {
       lf.markers.push(marker);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered, selected, leafletRef.current]);
+  }, [filtered, selected, mapReady]);
 
   // Pan/zoom to selected branch
   useEffect(() => {
