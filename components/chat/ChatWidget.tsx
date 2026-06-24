@@ -22,6 +22,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [handoffRequested, setHandoffRequested] = useState(false);
+  const [language, setLanguage] = useState<"english" | "filipino">("english");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Restore conversation from localStorage
@@ -97,7 +98,7 @@ export default function ChatWidget() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId, message: text, pageUrl: pathname }),
+        body: JSON.stringify({ conversationId, message: text, pageUrl: pathname, language }),
       });
       const data = await res.json();
 
@@ -180,14 +181,31 @@ export default function ChatWidget() {
               <p className="font-display text-[14px] font-black text-white">KServico Support</p>
               <p className="text-[11px] text-[#999]">AI assistant + live team</p>
             </div>
-            {!handoffRequested && conversationId && (
-              <button
-                onClick={requestHandoff}
-                className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-white/10 hover:bg-white/20 rounded-full px-3 py-1.5 transition-colors"
-              >
-                <Headset size={13} /> Talk to a person
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Language toggle */}
+              <div className="flex items-center bg-white/10 rounded-full p-0.5">
+                <button
+                  onClick={() => setLanguage("english")}
+                  className={`text-[10px] font-black px-2.5 py-1 rounded-full transition-colors ${language === "english" ? "bg-white text-[#1A1A1A]" : "text-white/70 hover:text-white"}`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => setLanguage("filipino")}
+                  className={`text-[10px] font-black px-2.5 py-1 rounded-full transition-colors ${language === "filipino" ? "bg-white text-[#1A1A1A]" : "text-white/70 hover:text-white"}`}
+                >
+                  FIL
+                </button>
+              </div>
+              {!handoffRequested && conversationId && (
+                <button
+                  onClick={requestHandoff}
+                  className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-white/10 hover:bg-white/20 rounded-full px-3 py-1.5 transition-colors"
+                >
+                  <Headset size={13} /> Talk to a person
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Messages */}

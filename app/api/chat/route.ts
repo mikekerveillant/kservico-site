@@ -9,7 +9,7 @@ const FALLBACK_REPLY =
   "Thanks for your message! Our AI assistant isn't fully set up yet, but you can tap \"Talk to a person\" and our team will get back to you.";
 
 export async function POST(request: Request) {
-  const { conversationId, message, pageUrl } = await request.json();
+  const { conversationId, message, pageUrl, language } = await request.json();
 
   if (!message || typeof message !== "string") {
     return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
       const result = await client.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 1024,
-        system: [{ type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral" } }],
+        system: [{ type: "text", text: buildSystemPrompt(language ?? "english"), cache_control: { type: "ephemeral" } }],
         messages,
       });
       reply = result.content[0]?.type === "text" ? result.content[0].text : "";
