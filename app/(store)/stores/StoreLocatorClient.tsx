@@ -36,14 +36,19 @@ export default function StoreLocatorClient() {
     if (!mapRef.current || leafletRef.current) return;
 
     import("leaflet").then((L) => {
-      // Fix default icon paths broken by bundlers
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-      });
+      const makeIcon = (active: boolean) =>
+        L.divIcon({
+          className: "",
+          html: `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="0 0 30 38">
+            <path d="M15 0C6.716 0 0 6.716 0 15c0 9.5 15 23 15 23S30 24.5 30 15C30 6.716 23.284 0 15 0z"
+              fill="${active ? "#C8102E" : "#F5C200"}" stroke="${active ? "#a00d24" : "#d4a800"}" stroke-width="1"/>
+            <text x="15" y="20" font-family="Arial Black,sans-serif" font-weight="900" font-size="13"
+              fill="${active ? "#F5C200" : "#C8102E"}" text-anchor="middle" dominant-baseline="middle">K</text>
+          </svg>`,
+          iconSize: [30, 38],
+          iconAnchor: [15, 38],
+          popupAnchor: [0, -38],
+        });
 
       const map = L.map(mapRef.current!).setView(LUZON_CENTER, 8);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -51,7 +56,7 @@ export default function StoreLocatorClient() {
         maxZoom: 19,
       }).addTo(map);
 
-      leafletRef.current = { map, L, markers: [] as ReturnType<typeof L.marker>[] };
+      leafletRef.current = { map, L, markers: [] as ReturnType<typeof L.marker>[], makeIcon };
     });
 
     return () => {
@@ -60,25 +65,25 @@ export default function StoreLocatorClient() {
     };
   }, []);
 
-  // Re-draw markers when filtered list changes
+  // Re-draw markers when filtered list or selected branch changes
   useEffect(() => {
     const lf = leafletRef.current;
     if (!lf) return;
-    const { map, L, markers } = lf;
+    const { map, L, markers, makeIcon } = lf;
 
-    // Clear old markers
     markers.forEach((m: ReturnType<typeof L.marker>) => m.remove());
     lf.markers = [];
 
     filtered.forEach((b) => {
-      const marker = L.marker([b.latitude, b.longitude])
+      const isActive = selected?.id === b.id;
+      const marker = L.marker([b.latitude, b.longitude], { icon: makeIcon(isActive) })
         .addTo(map)
         .bindPopup(`<strong>${b.name}</strong><br/>${b.address}, ${b.city}`);
       marker.on("click", () => setSelected(b));
       lf.markers.push(marker);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered, leafletRef.current]);
+  }, [filtered, selected, leafletRef.current]);
 
   // Pan/zoom to selected branch
   useEffect(() => {
