@@ -7,7 +7,17 @@ export function getProductBySlug(slug: string): Product | undefined {
   return MOCK_PRODUCTS.find((p) => p.slug === slug);
 }
 
-export function getProductsByCategory(category: ProductCategory): Product[] {
+const MERGED_CATEGORIES: Record<string, string[]> = {
+  mobile: ["smartphone"],
+  gadgets: ["laptop", "gadget", "audio"],
+  "home-appliances": ["tv", "fridge", "washer"],
+  "small-appliances": ["gas-range", "small-appliance"],
+  vehicles: ["motorcycle", "ebike"],
+};
+
+export function getProductsByCategory(category: string): Product[] {
+  const sub = MERGED_CATEGORIES[category];
+  if (sub) return MOCK_PRODUCTS.filter((p) => sub.includes(p.category) && p.is_active);
   return MOCK_PRODUCTS.filter((p) => p.category === category && p.is_active);
 }
 
@@ -36,6 +46,12 @@ export const CATEGORY_LABELS: Record<string, string> = {
   audio: "Audio Systems",
   "small-appliance": "Small Appliances",
   gadget: "Gadgets & Printers",
+  // merged nav categories
+  mobile: "Mobile Phones",
+  gadgets: "Gadgets",
+  "home-appliances": "Home Appliances",
+  "small-appliances": "Small Appliances",
+  vehicles: "Vehicles",
 };
 
 export const CATEGORY_EMOJIS: Record<string, string> = {
@@ -43,4 +59,6 @@ export const CATEGORY_EMOJIS: Record<string, string> = {
   "gas-range": "🔥", motorcycle: "🏍️", ebike: "⚡",
   "three-wheeler": "🛺", smartphone: "📱", laptop: "💻", furniture: "🛋️",
   audio: "🔊", "small-appliance": "🍳", gadget: "🖨️",
+  mobile: "📱", gadgets: "💻", "home-appliances": "🏠",
+  "small-appliances": "🔌", vehicles: "🏍️",
 };
