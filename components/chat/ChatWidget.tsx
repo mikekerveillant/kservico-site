@@ -61,7 +61,11 @@ export default function ChatWidget() {
         { event: "INSERT", schema: "public", table: "chat_messages", filter: `conversation_id=eq.${conversationId}` },
         (payload) => {
           const msg = payload.new as ChatMessage;
-          setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+          // Only append via realtime for staff messages — user + assistant messages
+          // are handled directly in sendMessage() to avoid duplicates.
+          if (msg.role === "staff") {
+            setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+          }
         }
       )
       .subscribe();
@@ -80,6 +84,15 @@ export default function ChatWidget() {
     setSending(true);
     setInput("");
 
+    // Show user message immediately
+    const userMsg: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: text,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -95,17 +108,16 @@ export default function ChatWidget() {
 
       if (data.status && data.status !== "ai") setHandoffRequested(true);
 
-      // Messages come through the Supabase realtime subscription — no manual state update needed.
-      // For first message (no prior conversationId), we need to load history since
-      // the realtime channel wasn't subscribed yet.
-      if (!conversationId && data.conversationId) {
-        const supabase = createClient();
-        const { data: history } = await supabase
-          .from("chat_messages")
-          .select("id, role, content, created_at")
-          .eq("conversation_id", data.conversationId)
-          .order("created_at", { ascending: true });
-        if (history) setMessages(history as ChatMessage[]);
+      if (data.reply) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `assistant-${Date.now()}`,
+            role: "assistant",
+            content: data.reply,
+            created_at: new Date().toISOString(),
+          },
+        ]);
       }
     } catch {
       setMessages((prev) => [
