@@ -23,12 +23,15 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
   const [handoffRequested, setHandoffRequested] = useState(false);
   const [language, setLanguage] = useState<"english" | "filipino">("english");
+  const [privacyAccepted, setPrivacyAccepted] = useState<boolean | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Restore conversation from localStorage
+  // Restore conversation and privacy acceptance from localStorage
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) setConversationId(stored);
+    const accepted = localStorage.getItem("kservico_privacy_accepted");
+    setPrivacyAccepted(accepted === "true");
   }, []);
 
   // Load message history + subscribe to realtime updates once we have a conversation
@@ -178,7 +181,7 @@ export default function ChatWidget() {
           {/* Header */}
           <div className="bg-[#1A1A1A] px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div>
-              <p className="font-display text-[14px] font-black text-white">KServico Support</p>
+              <p className="font-display text-[14px] font-black text-white">Kai — KServico Assistant</p>
               <p className="text-[11px] text-[#999]">AI assistant + live team</p>
             </div>
             <div className="flex items-center gap-2">
@@ -208,7 +211,49 @@ export default function ChatWidget() {
             </div>
           </div>
 
-          {/* Messages */}
+          {/* Privacy acceptance screen */}
+          {!privacyAccepted && (
+            <div className="flex-1 flex flex-col justify-between px-4 py-5 bg-[#FAFAFA]">
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl px-4 py-3.5 text-[13px] text-[#1A1A1A] border border-[#EFEFEF] leading-relaxed">
+                  Hello! I am Kai, your K-Shopping virtual assistant from KServico. How can I help you today?
+                </div>
+                <div className="bg-white rounded-2xl px-4 py-3.5 text-[13px] text-[#1A1A1A] border border-[#EFEFEF] leading-relaxed">
+                  Before we start, kindly take a moment to read our{" "}
+                  <a
+                    href="/privacy-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#C8102E] underline font-semibold"
+                  >
+                    Privacy Policy
+                  </a>
+                  .
+                </div>
+                <p className="text-[12px] text-[#777] text-center">Do you accept our Privacy Policy?</p>
+              </div>
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => {
+                    localStorage.setItem("kservico_privacy_accepted", "true");
+                    setPrivacyAccepted(true);
+                  }}
+                  className="flex-1 bg-[#C8102E] text-white font-display font-black text-[14px] py-3 rounded-xl hover:bg-[#a00d24] transition-colors"
+                >
+                  Yes, I Accept
+                </button>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="flex-1 bg-[#F0F0F0] text-[#555] font-display font-black text-[14px] py-3 rounded-xl hover:bg-[#E0E0E0] transition-colors"
+                >
+                  No, Close
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Messages + Input — only shown after privacy accepted */}
+          {privacyAccepted && (<>
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-[#FAFAFA]">
             {messages.length === 0 && (
               <div className="text-center text-[12.5px] text-[#999] mt-6 px-4">
@@ -269,6 +314,7 @@ export default function ChatWidget() {
               <Send size={15} />
             </button>
           </form>
+          </>)}
         </div>
       )}
     </>
