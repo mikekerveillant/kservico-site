@@ -159,6 +159,20 @@ export default function ChatWidget() {
     }
   }
 
+  async function cancelHandoff() {
+    if (!conversationId) return;
+    setHandoffRequested(false);
+    await fetch("/api/chat/handoff/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId }),
+    });
+    setMessages((prev) => [
+      ...prev,
+      { id: `kai-back-${Date.now()}`, role: "system", content: "You're back with Kai. How can I help?", created_at: new Date().toISOString() },
+    ]);
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     sendMessage(input);
@@ -206,6 +220,14 @@ export default function ChatWidget() {
                   className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-white/10 hover:bg-white/20 rounded-full px-3 py-1.5 transition-colors"
                 >
                   <Headset size={13} /> Talk to a person
+                </button>
+              )}
+              {handoffRequested && (
+                <button
+                  onClick={cancelHandoff}
+                  className="flex items-center gap-1.5 text-[11px] font-bold text-white bg-white/10 hover:bg-white/20 rounded-full px-3 py-1.5 transition-colors"
+                >
+                  Back to Kai
                 </button>
               )}
             </div>
