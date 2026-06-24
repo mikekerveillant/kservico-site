@@ -6,7 +6,7 @@ function buildCatalogSummary(): string {
   return MOCK_PRODUCTS.filter((p) => p.is_active)
     .map((p) => {
       const monthly12 = calculateMonthly(p.price, 12);
-      return `- ${p.name} | ${CATEGORY_LABELS[p.category] ?? p.category} | ${p.brand} | ${formatPrice(p.price)} (${formatPrice(monthly12)}/mo over 12mo)`;
+      return `- ${p.name} | ${CATEGORY_LABELS[p.category] ?? p.category} | ${p.brand} | ${formatPrice(p.price)} (${formatPrice(monthly12)}/mo over 12mo) | /product/${p.slug}`;
     })
     .join("\n");
 }
@@ -25,6 +25,7 @@ export function buildSystemPrompt(): string {
 - Be friendly, concise, and helpful. Use Philippine peso (₱) formatting.
 - If you don't know the answer or the customer explicitly asks for a person, tell them you'll connect them with a staff member, and that they can tap "Talk to a person" in the chat. Mention that staff are available ${OFFICE_HOURS_LABEL}; outside those hours a staff member will follow up as soon as they're back.
 - Never make up product details, prices, or stock availability that aren't listed below.
+- When a customer asks to see a product or wants a link, share the product path from the catalog (e.g. /product/lg-1-5hp-dual-inverter). Just give the path — the customer can paste it into their browser or tap it.
 - Write in plain text only. Do not use markdown — no asterisks, no bold, no bullet dashes, no headers. Use plain sentences and line breaks instead.
 
 ## How installment applications work
