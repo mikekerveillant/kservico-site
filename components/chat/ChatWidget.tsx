@@ -80,15 +80,6 @@ export default function ChatWidget() {
     setSending(true);
     setInput("");
 
-    // Optimistically show the user's message
-    const tempMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,
-      role: "user",
-      content: text,
-      created_at: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, tempMessage]);
-
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -104,16 +95,17 @@ export default function ChatWidget() {
 
       if (data.status && data.status !== "ai") setHandoffRequested(true);
 
-      if (data.reply) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `assistant-${Date.now()}`,
-            role: "assistant",
-            content: data.reply,
-            created_at: new Date().toISOString(),
-          },
-        ]);
+      // Messages come through the Supabase realtime subscription — no manual state update needed.
+      // For first message (no prior conversationId), we need to load history since
+      // the realtime channel wasn't subscribed yet.
+      if (!conversationId && data.conversationId) {
+        const supabase = createClient();
+        const { data: history } = await supabase
+          .from("chat_messages")
+          .select("id, role, content, created_at")
+          .eq("conversation_id", data.conversationId)
+          .order("created_at", { ascending: true });
+        if (history) setMessages(history as ChatMessage[]);
       }
     } catch {
       setMessages((prev) => [
