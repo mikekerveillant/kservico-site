@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Heart, User, Search, Menu, X, MapPin } from "lucide-react";
+import { ShoppingCart, Heart, User, Search, Menu, X, MapPin, ChevronDown } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { useUIStore } from "@/store/ui";
+
+type SubCat = { label: string; icon: string; href: string };
+type NavCat = { label: string; icon: string; href: string; sub?: SubCat[] };
 
 export default function Navbar() {
   const totalItems = useCartStore((s) => s.totalItems)();
@@ -13,7 +16,7 @@ export default function Navbar() {
     <nav className="bg-white border-b-2 border-[#EFEFEF] sticky top-0 z-[200] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
       {/* Main nav row */}
       <div className="max-w-[1280px] mx-auto px-5 py-3 flex items-center gap-4">
-        {/* Logo — yellow badge with red K + blue servico, matching real site */}
+        {/* Logo */}
         <Link href="/" className="flex-shrink-0 no-underline">
           <div className="bg-[#F5C200] px-3 py-1.5 rounded-md">
             <span className="font-display text-[26px] font-black leading-none tracking-tight">
@@ -56,7 +59,6 @@ export default function Navbar() {
             <span className="text-[10px] text-[#999] font-semibold whitespace-nowrap">Account</span>
           </button>
 
-          {/* Store Locator — matches the real site's prominent blue button */}
           <Link
             href="/stores"
             className="hidden md:flex items-center gap-2 bg-[#1A31A8] text-white border-none rounded-md px-4 py-2.5 font-display font-black text-[13px] hover:bg-[#122390] transition-colors no-underline whitespace-nowrap"
@@ -88,33 +90,79 @@ export default function Navbar() {
 
       {/* Category strip */}
       <div className="border-t border-[#EFEFEF] bg-white">
-        <div className="max-w-[1280px] mx-auto px-5 flex gap-0 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+        <div className="max-w-[1280px] mx-auto px-5 flex overflow-x-auto md:overflow-visible [&::-webkit-scrollbar]:hidden">
           {NAV_CATS.map((cat) => (
-            <Link
-              key={cat.href}
-              href={cat.href}
-              className="flex items-center gap-1.5 px-3.5 py-[9px] whitespace-nowrap text-[13px] font-semibold text-[#555] no-underline border-b-[3px] border-transparent hover:text-[#1A31A8] hover:border-[#1A31A8] transition-all"
-            >
-              <span className="text-[15px]">{cat.icon}</span>
-              {cat.label}
-            </Link>
+            <div key={cat.href} className="relative group/cat flex-shrink-0">
+              {cat.sub ? (
+                <button className="flex items-center gap-1.5 px-3.5 py-[9px] whitespace-nowrap text-[13px] font-semibold text-[#555] bg-transparent border-none border-b-[3px] border-transparent group-hover/cat:text-[#1A31A8] group-hover/cat:border-b-[#1A31A8] cursor-pointer transition-all">
+                  <span className="text-[15px]">{cat.icon}</span>
+                  {cat.label}
+                  <ChevronDown size={11} className="ml-0.5 transition-transform duration-200 group-hover/cat:rotate-180" />
+                </button>
+              ) : (
+                <Link
+                  href={cat.href}
+                  className="flex items-center gap-1.5 px-3.5 py-[9px] whitespace-nowrap text-[13px] font-semibold text-[#555] no-underline border-b-[3px] border-transparent hover:text-[#1A31A8] hover:border-[#1A31A8] transition-all"
+                >
+                  <span className="text-[15px]">{cat.icon}</span>
+                  {cat.label}
+                </Link>
+              )}
+
+              {/* Dropdown */}
+              {cat.sub && (
+                <div className="absolute top-full left-0 hidden group-hover/cat:block bg-white border border-[#EFEFEF] shadow-[0_8px_24px_rgba(0,0,0,0.10)] rounded-b-lg z-[300] min-w-[190px] py-1.5 mt-0">
+                  {cat.sub.map((sub) => (
+                    <Link
+                      key={sub.href}
+                      href={sub.href}
+                      className="flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold text-[#444] no-underline hover:bg-[#F4F6FF] hover:text-[#1A31A8] transition-colors whitespace-nowrap"
+                    >
+                      <span className="text-[16px]">{sub.icon}</span>
+                      {sub.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-[#EFEFEF] px-5 py-3 flex flex-col gap-2">
+        <div className="md:hidden bg-white border-t border-[#EFEFEF] px-5 py-3 flex flex-col gap-1">
           {NAV_CATS.map((cat) => (
-            <Link
-              key={cat.href}
-              href={cat.href}
-              onClick={closeMobileMenu}
-              className="flex items-center gap-2 py-2 text-[14px] font-semibold text-[#555] no-underline hover:text-[#1A31A8] transition-colors"
-            >
-              <span>{cat.icon}</span>
-              {cat.label}
-            </Link>
+            <div key={cat.href}>
+              {cat.sub ? (
+                <>
+                  <div className="flex items-center gap-2 py-2 text-[13px] font-black text-[#1A1A1A] uppercase tracking-wide">
+                    <span>{cat.icon}</span>
+                    {cat.label}
+                  </div>
+                  {cat.sub.map((sub) => (
+                    <Link
+                      key={sub.href}
+                      href={sub.href}
+                      onClick={closeMobileMenu}
+                      className="flex items-center gap-2 py-2 pl-6 text-[13.5px] font-semibold text-[#555] no-underline hover:text-[#1A31A8] transition-colors"
+                    >
+                      <span>{sub.icon}</span>
+                      {sub.label}
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                <Link
+                  href={cat.href}
+                  onClick={closeMobileMenu}
+                  className="flex items-center gap-2 py-2 text-[14px] font-semibold text-[#555] no-underline hover:text-[#1A31A8] transition-colors"
+                >
+                  <span>{cat.icon}</span>
+                  {cat.label}
+                </Link>
+              )}
+            </div>
           ))}
         </div>
       )}
@@ -122,13 +170,47 @@ export default function Navbar() {
   );
 }
 
-const NAV_CATS = [
+const NAV_CATS: NavCat[] = [
   { label: "Aircons", icon: "❄️", href: "/shop/aircon" },
   { label: "Mobile", icon: "📱", href: "/shop/mobile" },
-  { label: "Gadgets", icon: "💻", href: "/shop/gadgets" },
-  { label: "Home Appliances", icon: "🏠", href: "/shop/home-appliances" },
-  { label: "Small Appliances", icon: "🔌", href: "/shop/small-appliances" },
+  {
+    label: "Gadgets",
+    icon: "💻",
+    href: "/shop/gadgets",
+    sub: [
+      { label: "Laptops", icon: "💻", href: "/shop/laptop" },
+      { label: "Gadgets & Printers", icon: "🖨️", href: "/shop/gadget" },
+      { label: "Audio Systems", icon: "🔊", href: "/shop/audio" },
+    ],
+  },
+  {
+    label: "Home Appliances",
+    icon: "🏠",
+    href: "/shop/home-appliances",
+    sub: [
+      { label: "Televisions", icon: "📺", href: "/shop/tv" },
+      { label: "Refrigerators", icon: "🧊", href: "/shop/fridge" },
+      { label: "Washers & Dryers", icon: "🫧", href: "/shop/washer" },
+    ],
+  },
+  {
+    label: "Small Appliances",
+    icon: "🔌",
+    href: "/shop/small-appliances",
+    sub: [
+      { label: "Gas Ranges", icon: "🔥", href: "/shop/gas-range" },
+      { label: "Small Appliances", icon: "🍳", href: "/shop/small-appliance" },
+    ],
+  },
   { label: "Furniture", icon: "🛋️", href: "/shop/furniture" },
-  { label: "Vehicles", icon: "🏍️", href: "/shop/vehicles" },
+  {
+    label: "Vehicles",
+    icon: "🏍️",
+    href: "/shop/vehicles",
+    sub: [
+      { label: "Motorcycles", icon: "🏍️", href: "/shop/motorcycle" },
+      { label: "E-Bikes", icon: "⚡", href: "/shop/ebike" },
+    ],
+  },
   { label: "3 Wheelers", icon: "🛺", href: "/shop/three-wheeler" },
 ];
