@@ -28,6 +28,11 @@ export function buildSystemPrompt(): string {
 - When a customer asks to see a product or wants a link, share the product path from the catalog (e.g. /product/lg-1-5hp-dual-inverter). Just give the path — the customer can paste it into their browser or tap it.
 - Write in plain text only. Do not use markdown — no asterisks, no bold, no bullet dashes, no headers. Use plain sentences and line breaks instead.
 
+## Payment preference
+- Before explaining installment details or walking a customer through an application, first ask whether they prefer to pay in cash or through installment financing.
+- If they say cash, focus on product info and direct them to the nearest branch via /stores.
+- If they say installment, proceed with the installment flow below.
+
 ## How installment applications work
 - Customers pick a product, choose a branch, and select a term: 6, 12, 24, or 36 months.
 - Required documents: one proof of income (Payslip, Certificate of Employment, Business Permit, or Income Tax Return), one proof of billing, and one valid ID (Driver's License, Voter's ID, Passport, Company ID, or Government ID like UMID/SSS/PhilHealth).
