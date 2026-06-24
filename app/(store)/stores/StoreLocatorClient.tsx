@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, MapPin, Phone, ChevronDown } from "lucide-react";
-import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from "@vis.gl/react-google-maps";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { Search, MapPin, Phone, ChevronDown, ExternalLink } from "lucide-react";
 import { MOCK_BRANCHES, REGIONS } from "@/lib/branches";
 import type { Branch } from "@/types";
 
-const LUZON_CENTER = { lat: 15.5, lng: 120.8 };
+const LUZON_CENTER: [number, number] = [15.5, 120.8];
 
 export default function StoreLocatorClient() {
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState("All Regions");
   const [selected, setSelected] = useState<Branch | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const leafletRef = useRef<any>(null);
 
   const filtered = useMemo(() => {
     return MOCK_BRANCHES.filter((b) => {
@@ -28,6 +30,62 @@ export default function StoreLocatorClient() {
 
   const gmapsUrl = (b: Branch) =>
     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${b.name} ${b.address} ${b.city}`)}`;
+
+  // Initialise Leaflet map once on mount (client-only)
+  useEffect(() => {
+    if (!mapRef.current || leafletRef.current) return;
+
+    import("leaflet").then((L) => {
+      // Fix default icon paths broken by bundlers
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      });
+
+      const map = L.map(mapRef.current!).setView(LUZON_CENTER, 8);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(map);
+
+      leafletRef.current = { map, L, markers: [] as ReturnType<typeof L.marker>[] };
+    });
+
+    return () => {
+      leafletRef.current?.map.remove();
+      leafletRef.current = null;
+    };
+  }, []);
+
+  // Re-draw markers when filtered list changes
+  useEffect(() => {
+    const lf = leafletRef.current;
+    if (!lf) return;
+    const { map, L, markers } = lf;
+
+    // Clear old markers
+    markers.forEach((m: ReturnType<typeof L.marker>) => m.remove());
+    lf.markers = [];
+
+    filtered.forEach((b) => {
+      const marker = L.marker([b.latitude, b.longitude])
+        .addTo(map)
+        .bindPopup(`<strong>${b.name}</strong><br/>${b.address}, ${b.city}`);
+      marker.on("click", () => setSelected(b));
+      lf.markers.push(marker);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered, leafletRef.current]);
+
+  // Pan/zoom to selected branch
+  useEffect(() => {
+    const lf = leafletRef.current;
+    if (!lf || !selected) return;
+    lf.map.setView([selected.latitude, selected.longitude], 14, { animate: true });
+  }, [selected]);
 
   return (
     <div className="min-h-screen bg-[#F8F8F8]">
@@ -47,7 +105,6 @@ export default function StoreLocatorClient() {
         <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
           {/* Left — search + list */}
           <div>
-            {/* Filters */}
             <div className="flex flex-col gap-2.5 mb-5">
               <div className="flex items-center gap-2 bg-white border-2 border-[#EFEFEF] rounded-xl px-4 py-3 focus-within:border-[#C8102E] transition-colors">
                 <Search size={16} className="text-[#999] flex-shrink-0" />
@@ -72,12 +129,10 @@ export default function StoreLocatorClient() {
               </div>
             </div>
 
-            {/* Results count */}
             <p className="text-[12px] text-[#999] mb-3 font-semibold">
               {filtered.length} branch{filtered.length !== 1 ? "es" : ""} found
             </p>
 
-            {/* Branch list */}
             <div className="flex flex-col gap-2 max-h-[600px] overflow-y-auto pr-1">
               {filtered.map((b) => (
                 <button
@@ -115,48 +170,10 @@ export default function StoreLocatorClient() {
 
           {/* Right — map + selected branch detail */}
           <div className="flex flex-col gap-4">
-            {/* Interactive map */}
-            <div className="rounded-2xl overflow-hidden h-[420px] relative">
-              <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ""}>
-                <Map
-                  mapId="DEMO_MAP_ID"
-                  defaultCenter={selected ? { lat: selected.latitude, lng: selected.longitude } : LUZON_CENTER}
-                  center={selected ? { lat: selected.latitude, lng: selected.longitude } : undefined}
-                  defaultZoom={selected ? 13 : 8}
-                  zoom={selected ? 13 : undefined}
-                  gestureHandling="greedy"
-                  disableDefaultUI={false}
-                  style={{ width: "100%", height: "100%" }}
-                >
-                  {filtered.map((b) => (
-                    <AdvancedMarker
-                      key={b.id}
-                      position={{ lat: b.latitude, lng: b.longitude }}
-                      onClick={() => setSelected(b)}
-                    >
-                      <Pin
-                        background={selected?.id === b.id ? "#C8102E" : "#1A1A1A"}
-                        borderColor="#fff"
-                        glyphColor="#fff"
-                      />
-                    </AdvancedMarker>
-                  ))}
-                  {selected && (
-                    <InfoWindow
-                      position={{ lat: selected.latitude, lng: selected.longitude }}
-                      onCloseClick={() => setSelected(null)}
-                    >
-                      <div className="text-[12px] text-[#1A1A1A]">
-                        <p className="font-bold mb-0.5">{selected.name}</p>
-                        <p>{selected.address}, {selected.city}</p>
-                      </div>
-                    </InfoWindow>
-                  )}
-                </Map>
-              </APIProvider>
+            <div className="rounded-2xl overflow-hidden h-[420px] relative border border-[#EFEFEF]">
+              <div ref={mapRef} className="w-full h-full" />
             </div>
 
-            {/* Selected branch detail */}
             {selected ? (
               <div className="bg-white border-2 border-[#EFEFEF] rounded-2xl p-6">
                 <h2 className="font-display text-[20px] font-black text-[#1A1A1A] mb-3">{selected.name}</h2>
@@ -181,8 +198,9 @@ export default function StoreLocatorClient() {
                     href={gmapsUrl(selected)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 bg-[#C8102E] text-white text-center py-3 rounded-xl font-display font-black text-[14px] no-underline hover:bg-[#a00d24] transition-colors"
+                    className="flex-1 bg-[#C8102E] text-white text-center py-3 rounded-xl font-display font-black text-[14px] no-underline hover:bg-[#a00d24] transition-colors flex items-center justify-center gap-2"
                   >
+                    <ExternalLink size={14} />
                     Get Directions
                   </a>
                   <a
@@ -196,7 +214,7 @@ export default function StoreLocatorClient() {
             ) : (
               <div className="bg-white border-2 border-dashed border-[#EFEFEF] rounded-2xl p-6 text-center text-[#999]">
                 <p className="text-[14px] font-semibold">Select a branch to see details</p>
-                <p className="text-[12px] mt-1">Click any branch from the list</p>
+                <p className="text-[12px] mt-1">Click any branch from the list or a pin on the map</p>
               </div>
             )}
           </div>
