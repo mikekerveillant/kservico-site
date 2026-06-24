@@ -78,10 +78,20 @@ export async function POST(request: Request) {
     ];
 
     try {
+      const lang = (language ?? "english") as "english" | "filipino";
+      const langText = lang === "filipino"
+        ? "Respond in Filipino (Tagalog). Use natural, conversational Filipino throughout."
+        : "Respond in English.";
+
       const result = await client.messages.create({
-        model: "claude-sonnet-4-6",
+        model: "claude-haiku-4-5",
         max_tokens: 1024,
-        system: [{ type: "text", text: buildSystemPrompt(language ?? "english"), cache_control: { type: "ephemeral" } }],
+        system: [
+          // Large static block — cached for 1 hour so it survives slow conversations
+          { type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral", ttl: "1h" } },
+          // Small per-request block — not cached (changes with language toggle)
+          { type: "text", text: langText },
+        ],
         messages,
       });
       reply = result.content[0]?.type === "text" ? result.content[0].text : "";
