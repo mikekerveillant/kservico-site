@@ -94,7 +94,23 @@ export async function POST(request: Request) {
         ],
         messages,
       });
-      reply = result.content[0]?.type === "text" ? result.content[0].text : "";
+      const raw = result.content[0]?.type === "text" ? result.content[0].text : "";
+
+      // Extract and strip the hidden KDATA: line Claude appends once it has name + contact
+      const kdataMatch = raw.match(/\nKDATA:([^\n]+)/);
+      if (kdataMatch) {
+        const parts = Object.fromEntries(
+          kdataMatch[1].split(",").map((p) => p.split("=").map((s) => s.trim()))
+        );
+        const updates: Record<string, string> = {};
+        if (parts.name) updates.customer_name = parts.name;
+        if (parts.phone) updates.customer_phone = parts.phone;
+        if (parts.email) updates.customer_email = parts.email;
+        if (Object.keys(updates).length > 0) {
+          await supabase.from("chat_conversations").update(updates).eq("id", convoId);
+        }
+      }
+      reply = raw.replace(/\nKDATA:[^\n]+/, "").trimEnd();
     } catch (err) {
       console.error("Chat AI error:", err);
       reply = "Sorry, something went wrong on our end. Please try again, or tap \"Talk to a person\" for help.";

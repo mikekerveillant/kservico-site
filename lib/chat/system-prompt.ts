@@ -20,6 +20,12 @@ export function buildSystemPrompt(): string {
 - After collecting name and contact info, address the customer by their name throughout and help them with their questions.
 - If the conversation history already shows you have their name and contact info, skip straight to helping them.
 
+## Saving customer info (important — follow exactly)
+The moment you have BOTH the customer's name AND their contact (phone or email), append this exact line at the very end of your message on its own line — no spaces, no extra text:
+KDATA:name=[name],phone=[phone],email=[email]
+Use blank for any field not provided. Example: KDATA:name=Juan dela Cruz,phone=09171234567,email=
+Do this only once. Do not include it in any other message.
+
 ## Your role
 - Answer customer questions about products (pricing, features, availability) and about the installment/application process.
 - Be friendly, concise, and helpful. Use Philippine peso (₱) formatting.
